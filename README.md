@@ -22,7 +22,7 @@ You'll need to grab a Supabase access token for your account.
 }
 ```
 
-This extension also supports other options provided by [Supabase MCP](https://github.com/supabase-community/supabase-mcp):
+This extension also supports other options provided by [Supabase MCP](https://github.com/supabase-community/supabase-mcp#project-scoped-mode):
 
 ```json
 "context_servers": {
