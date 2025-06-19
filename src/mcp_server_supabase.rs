@@ -7,7 +7,7 @@ use zed_extension_api::{
 };
 
 const PACKAGE_NAME: &str = "@supabase/mcp-server-supabase";
-const SERVER_PATH: &str = "node_modules/@supabase/mcp-server-supabase/dist/stdio.js";
+const PACKAGE_PATH: &str = "node_modules/@supabase/mcp-server-supabase";
 
 #[derive(Debug, Deserialize, JsonSchema)]
 struct SupabaseContextServerSettings {
@@ -40,11 +40,25 @@ impl zed::Extension for SupabaseModelContextExtension {
         };
         let settings: SupabaseContextServerSettings =
             serde_json::from_value(settings).map_err(|e| e.to_string())?;
-        let mut args = vec![env::current_dir()
-            .unwrap()
-            .join(SERVER_PATH)
-            .to_string_lossy()
-            .to_string()];
+
+        // Find file
+        let directories = ["dist", "dist/transports"];
+        let filename = "stdio.js";
+        let Some(entrypoint) = directories
+            .iter()
+            .map(|&dir| {
+                env::current_dir()
+                    .unwrap()
+                    .join(PACKAGE_PATH)
+                    .join(dir)
+                    .join(filename)
+            })
+            .find(|path| path.exists())
+        else {
+            return Err("cannot find stdio.js necessary to start the MCP server".into());
+        };
+
+        let mut args = vec![entrypoint.to_string_lossy().to_string()];
         if settings.read_only {
             args.push("--read-only".to_string());
         }
